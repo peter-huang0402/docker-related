@@ -12,5 +12,5 @@ Under the specific cases in containers the live migration works well with 3 appr
     Just dump the updated memory pages only. Each time the dumping action compares with the previous dumping page, and just dump updated memory pages. Finally, we combine all dumping pages to restore the containers.
 
 <b>(3) Post-Copy approach</b></p>
-    Just dump the initial pages to another machine. When page faults happen in destination machine. It will make requests of missing page from the destination machine to the source machine. And, the source machine will send the requested pages back to destination machine.
+    Just dump initial pages to another machine. When page faults happen in destination machine. It will make requests of missing page from the destination machine to the source machine. And, the source machine will send the requested pages back to destination machine.
 
