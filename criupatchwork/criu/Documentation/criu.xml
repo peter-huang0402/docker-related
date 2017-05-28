@@ -1,0 +1,1073 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<?asciidoc-toc?>
+<?asciidoc-numbered?>
+<refentry lang="en">
+<refentryinfo>
+    <title>CRIU(8)</title>
+</refentryinfo>
+<refmeta>
+<refentrytitle>criu</refentrytitle>
+<manvolnum>8</manvolnum>
+<refmiscinfo class="source">criu</refmiscinfo>
+<refmiscinfo class="manual">CRIU Manual</refmiscinfo>
+<refmiscinfo class="version">2.6</refmiscinfo>
+</refmeta>
+<refnamediv>
+    <refname>criu</refname>
+    <refpurpose>checkpoint/restore in userspace</refpurpose>
+</refnamediv>
+<refsynopsisdiv id="_synopsis">
+<simpara><emphasis role="strong">criu</emphasis> <emphasis>command</emphasis> [<emphasis>option</emphasis> &#8230;]</simpara>
+</refsynopsisdiv>
+<refsect1 id="_description">
+<title>DESCRIPTION</title>
+<simpara><emphasis role="strong">criu</emphasis> is a tool for checkpointing and restoring running applications.
+It does this by saving their state as a collection of files (see the <emphasis role="strong">dump</emphasis>
+command) and creating equivalent processes from those files (see the <emphasis role="strong">restore</emphasis>
+command). The restore operation can be performed at a later time,
+on a different system, or both.</simpara>
+</refsect1>
+<refsect1 id="_options">
+<title>OPTIONS</title>
+<refsect2 id="_common_options">
+<title>Common options</title>
+<simpara>Common options are applicable to any <emphasis>command</emphasis>.</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">-v</emphasis>[<emphasis>num</emphasis>|<emphasis role="strong">v</emphasis>&#8230;]
+</term>
+<listitem>
+<simpara>
+    Set logging level to <emphasis>num</emphasis>. The higher the level, the more output
+    is produced. Either numeric values or multiple <emphasis role="strong">v</emphasis> can be used.
+   <?asciidoc-br?>
+The following levels are available:
+</simpara>
+<itemizedlist>
+<listitem>
+<simpara>
+<emphasis role="strong">-v1</emphasis>, <emphasis role="strong">-v</emphasis>
+        only messages and errors;
+</simpara>
+</listitem>
+<listitem>
+<simpara>
+<emphasis role="strong">-v2</emphasis>, <emphasis role="strong">-vv</emphasis>
+        also warnings (default level);
+</simpara>
+</listitem>
+<listitem>
+<simpara>
+<emphasis role="strong">-v3</emphasis>, <emphasis role="strong">-vvv</emphasis>
+        also information messages and timestamps;
+</simpara>
+</listitem>
+<listitem>
+<simpara>
+<emphasis role="strong">-v4</emphasis>, <emphasis role="strong">-vvvv</emphasis>
+        lots of debug.
+</simpara>
+</listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--pidfile</emphasis> <emphasis>file</emphasis>
+</term>
+<listitem>
+<simpara>
+    Write root task, service or page-server pid into a <emphasis>file</emphasis>.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-o</emphasis>, <emphasis role="strong">--log-file</emphasis> <emphasis>file</emphasis>
+</term>
+<listitem>
+<simpara>
+    Write logging messages to <emphasis>file</emphasis>.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--log-pid</emphasis>
+</term>
+<listitem>
+<simpara>
+    Write separate logging files per each pid.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-D</emphasis>, <emphasis role="strong">--images-dir</emphasis> <emphasis>path</emphasis>
+</term>
+<listitem>
+<simpara>
+    Use <emphasis>path</emphasis> as a base directory where to look for sets of image files.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--prev-images-dir</emphasis> <emphasis>path</emphasis>
+</term>
+<listitem>
+<simpara>
+    Use <emphasis>path</emphasis> as a parent directory where to look for sets of image files.
+    This option makes sense in case of incremental dumps.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-W</emphasis>, <emphasis role="strong">--work-dir</emphasis> <emphasis>dir</emphasis>
+</term>
+<listitem>
+<simpara>
+    Use directory <emphasis>dir</emphasis> for putting logs, pidfiles and statistics. If not
+    specified, <emphasis>path</emphasis> from <emphasis role="strong">-D</emphasis> option is taken.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--close</emphasis> <emphasis>fd</emphasis>
+</term>
+<listitem>
+<simpara>
+    Close file descriptor <emphasis>fd</emphasis> before performing any actions.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-L</emphasis>, <emphasis role="strong">--libdir</emphasis> <emphasis>path</emphasis>
+</term>
+<listitem>
+<simpara>
+    Path to plugins directory.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--action-script</emphasis> <emphasis>script</emphasis>
+</term>
+<listitem>
+<simpara>
+    Add an external action script to be executed at certain stages.
+    The environment variable <emphasis role="strong">CRTOOLS_SCRIPT_ACTION</emphasis> is available
+    to the script to find out which action is being executed, and
+    its value can be one of the following:
+</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">pre-dump</emphasis>
+</term>
+<listitem>
+<simpara>
+            run prior to beginning a <emphasis role="strong">dump</emphasis>
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">post-dump</emphasis>
+</term>
+<listitem>
+<simpara>
+            run upon <emphasis role="strong">dump</emphasis> completion
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">pre-restore</emphasis>
+</term>
+<listitem>
+<simpara>
+            run prior to beginning a <emphasis role="strong">restore</emphasis>
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">post-restore</emphasis>
+</term>
+<listitem>
+<simpara>
+            run upon <emphasis role="strong">restore</emphasis> completion
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">network-lock</emphasis>
+</term>
+<listitem>
+<simpara>
+            run to lock network in a target network namespace
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">network-unlock</emphasis>
+</term>
+<listitem>
+<simpara>
+            run to unlock network in a target network namespace
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">setup-namespaces</emphasis>
+</term>
+<listitem>
+<simpara>
+            run once root task just been created
+            with required namespaces. Note it is an early stage
+            of restore, when nothing is restored yet except for namespaces
+            themselves
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-V</emphasis>, <emphasis role="strong">--version</emphasis>
+</term>
+<listitem>
+<simpara>
+    Print program version and exit.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-h</emphasis>, <emphasis role="strong">--help</emphasis>
+</term>
+<listitem>
+<simpara>
+    Print some help and exit.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect2>
+<refsect2 id="_emphasis_role_strong_pre_dump_emphasis">
+<title><emphasis role="strong">pre-dump</emphasis></title>
+<simpara>Performs the pre-dump procedure, during which <emphasis role="strong">criu</emphasis> creates a snapshot of
+memory changes since the previous <emphasis role="strong">pre-dump</emphasis>. Note that during this
+<emphasis role="strong">criu</emphasis> also creates the fsnotify cache which speeds up the <emphasis role="strong">restore</emphasis>
+procedure. <emphasis role="strong">pre-dump</emphasis> requires at least <emphasis role="strong">-t</emphasis> option (see <emphasis role="strong">dump</emphasis> below).
+In addition, <emphasis role="strong">page-server</emphasis> options may be specified.</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">--track-mem</emphasis>
+</term>
+<listitem>
+<simpara>
+    Turn on memory changes tracker in the kernel. If the option is
+    not passed the memory tracker get turned on implicitly.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect2>
+<refsect2 id="_emphasis_role_strong_dump_emphasis">
+<title><emphasis role="strong">dump</emphasis></title>
+<simpara>Performs a checkpoint procedure.</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">-t</emphasis>, <emphasis role="strong">--tree</emphasis> <emphasis>pid</emphasis>
+</term>
+<listitem>
+<simpara>
+    Checkpoint the whole process tree starting from <emphasis>pid</emphasis>.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-R</emphasis>, <emphasis role="strong">--leave-running</emphasis>
+</term>
+<listitem>
+<simpara>
+    Leave tasks in running state after checkpoint, instead of killing. This
+    option is pretty dangerous and should be used only if you understand
+    what you are doing.
+</simpara>
+<simpara>Note if task is about to run after been checkpointed, it can modify
+TCP connections, delete files and do other dangerous actions. Therefore,
+<emphasis role="strong">criu</emphasis> can not guarantee that the next <emphasis role="strong">restore</emphasis> action will succeed.
+Most likely if this option is used, at least the file system snapshot
+must be made with the help of <emphasis role="strong">post-dump</emphasis> action script.</simpara>
+<simpara>In other words, do not use it unless really needed.</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-s</emphasis>, <emphasis role="strong">--leave-stopped</emphasis>
+</term>
+<listitem>
+<simpara>
+    Leave tasks in stopped state after checkpoint, instead of killing.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-x</emphasis>, <emphasis role="strong">--ext-unix-sk</emphasis> [<emphasis>inode</emphasis>[,<emphasis>inode</emphasis>&#8230;]]
+</term>
+<listitem>
+<simpara>
+    Dump external unix sockets. Optionally passing a comma-separated
+    list of inodes to allow a one sided dump for those.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--freeze-cgroup</emphasis>
+</term>
+<listitem>
+<simpara>
+   Use cgroup freezer to collect processes.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--manage-cgroups</emphasis>
+</term>
+<listitem>
+<simpara>
+    Collect cgroups into the image thus they gonna be restored then.
+    Without this option, <emphasis role="strong">criu</emphasis> will not save cgroups configuration
+    associated with a task.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--cgroup-props</emphasis> <emphasis>spec</emphasis>
+</term>
+<listitem>
+<simpara>
+    Specify controllers and their properties to be saved into the
+    image file. <emphasis role="strong">criu</emphasis> predefines specifications for common controllers,
+    but since the kernel can add new controllers and modify their
+    properties, there should be a way to specify ones matched the kernel.
+</simpara>
+<simpara><emphasis>spec</emphasis> argument describes the controller and properties specification in
+a simplified YAML form:</simpara>
+<screen>"c1":
+ - "strategy": "merge"
+ - "properties": ["a", "b"]
+"c2":
+ - "strategy": "replace"
+ - "properties": ["c", "d"]</screen>
+<simpara>where <emphasis>c1</emphasis> and <emphasis>c2</emphasis> are controllers names, and <emphasis>a</emphasis>, <emphasis>b</emphasis>, <emphasis>c</emphasis>, <emphasis>d</emphasis> are
+their properties.</simpara>
+<simpara>Note the format: double quotes, spaces and new lines are required.
+The <emphasis>strategy</emphasis> specifies what to do if a controller specified already
+exists as a built-in one: <emphasis role="strong">criu</emphasis> can either <emphasis role="strong">merge</emphasis> or <emphasis role="strong">replace</emphasis> such.</simpara>
+<simpara>For example, the command line for the above example should look like this:</simpara>
+<screen>--cgroup-props "\"c1\":\n - \"strategy\": \"merge\"\n - \"properties\": [\"a\", \"b\"]\n \"c2\":\n - \"strategy\": \"replace\"\n - \"properties\": [\"c\", \"d\"]"</screen>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--cgroup-props-file</emphasis> <emphasis>file</emphasis>
+</term>
+<listitem>
+<simpara>
+    Same as <emphasis role="strong">--cgroup-props</emphasis>, except the specification is read from
+    the <emphasis>file</emphasis>.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--cgroup-dump-controller</emphasis> <emphasis>name</emphasis>
+</term>
+<listitem>
+<simpara>
+    Dump a controller with <emphasis>name</emphasis> only, skipping anything else that was
+    discovered automatically (usually via <emphasis role="strong">/proc</emphasis>). This option is
+    useful when one needs <emphasis role="strong">criu</emphasis> to skip some controllers.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--cgroup-props-ignore-default</emphasis>
+</term>
+<listitem>
+<simpara>
+    When combined with <emphasis role="strong">--cgroup-props</emphasis>, makes <emphasis role="strong">criu</emphasis> substitute
+    a predefined controller property with the new one shipped. If the option
+    is not used, the predefined properties are merged with the provided ones.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--tcp-established</emphasis>
+</term>
+<listitem>
+<simpara>
+    Checkpoint established TCP connections.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--skip-in-flight</emphasis>
+</term>
+<listitem>
+<simpara>
+    This option skips in-flight TCP connections. If any TCP connections
+    that are not yet completely established are found, <emphasis role="strong">criu</emphasis> ignores
+    these connections, rather than errors out.
+    The TCP stack on the client side is expected to handle the
+    re-connect gracefully.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--veth-pair</emphasis> <emphasis>IN</emphasis><emphasis role="strong">=</emphasis><emphasis>OUT</emphasis>
+</term>
+<listitem>
+<simpara>
+    Relation between outside and inside names of veth devices.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--evasive-devices</emphasis>
+</term>
+<listitem>
+<simpara>
+    Use any path to a device file if the original one is inaccessible.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--page-server</emphasis>
+</term>
+<listitem>
+<simpara>
+    Send pages to a page server (see the <emphasis role="strong">page-server</emphasis> command).
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--force-irmap</emphasis>
+</term>
+<listitem>
+<simpara>
+    Force resolving names for inotify and fsnotify watches.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--auto-dedup</emphasis>
+</term>
+<listitem>
+<simpara>
+    Deduplicate "old" data in pages images of previous <emphasis role="strong">dump</emphasis>. This option
+    implies incremental <emphasis role="strong">dump</emphasis> mode (see the <emphasis role="strong">pre-dump</emphasis> command).
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-l</emphasis>, <emphasis role="strong">--file-locks</emphasis>
+</term>
+<listitem>
+<simpara>
+    Dump file locks. It is necessary to make sure that all file lock users
+    are taken into dump, so it is only safe to use this for enclosed containers
+    where locks are not held by any processes outside of dumped process tree.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-M</emphasis>, <emphasis role="strong">--ext-mount-map</emphasis> <emphasis>KEY</emphasis><emphasis role="strong">:</emphasis><emphasis>VAL</emphasis>
+</term>
+<listitem>
+<simpara>
+    Setup mapping for external mounts. Here <emphasis>KEY</emphasis> is a mountpoint inside
+    a container, and corresponding <emphasis>VAL</emphasis> is a string to be written into
+    the image as the mountpoint's root value.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--link-remap</emphasis>
+</term>
+<listitem>
+<simpara>
+    Allows to link unlinked files back, if possible (modifies filesystem
+    during <emphasis role="strong">restore</emphasis>).
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--ghost-limit</emphasis> <emphasis>size</emphasis>
+</term>
+<listitem>
+<simpara>
+    Set the maximum size of deleted file to be carried inside image.
+    By default, up to 1M file is allowed. Using this
+    option allows to not put big deleted files inside images. Argument
+    <emphasis>size</emphasis> may be postfixed with a <emphasis role="strong">K</emphasis>, <emphasis role="strong">M</emphasis> or <emphasis role="strong">G</emphasis>, which stands for kilo-,
+    mega, and gigabytes, accordingly.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-j</emphasis>, <emphasis role="strong">--shell-job</emphasis>
+</term>
+<listitem>
+<simpara>
+    Allow one to dump shell jobs. This implies the restored task will
+    inherit session and process group ID from the <emphasis role="strong">criu</emphasis> itself.
+    This option also allows to migrate a single external tty connection,
+    to migrate applications like <emphasis role="strong">top</emphasis>. If used with <emphasis role="strong">dump</emphasis> command,
+    it must be specified with <emphasis role="strong">restore</emphasis> as well.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--cpu-cap</emphasis> [<emphasis>cap</emphasis>[,<emphasis>cap</emphasis>&#8230;]]
+</term>
+<listitem>
+<simpara>
+    Specify CPU capabilities to write to an image file. The argument is a
+    comma-separated list of <emphasis role="strong">none</emphasis>, <emphasis role="strong">fpu</emphasis>, <emphasis role="strong">cpu</emphasis>, <emphasis role="strong">ins</emphasis>, <emphasis role="strong">all</emphasis>. If the
+    argument is omitted or set to <emphasis role="strong">none</emphasis>, capabilities will not be written,
+    which is the default behavior.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--cgroup-root</emphasis> [<emphasis>controller</emphasis>:]/<emphasis>newroot</emphasis>
+</term>
+<listitem>
+<simpara>
+    Change the root for the controller that will be dumped. By default, <emphasis role="strong">criu</emphasis>
+    simply dumps everything below where any of the tasks live. However, if a
+    container moves all of its tasks into a cgroup directory below the container
+    engine&#8217;s default directory for tasks, permissions will not be preserved on
+    the upper directories with no tasks in them, which may cause problems.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect2>
+<refsect2 id="_emphasis_role_strong_restore_emphasis">
+<title><emphasis role="strong">restore</emphasis></title>
+<simpara>Restores previously checkpointed processes.</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">--inherit-fd</emphasis> <emphasis role="strong">fd[</emphasis><emphasis>N</emphasis><emphasis role="strong">]:</emphasis><emphasis>path</emphasis>
+</term>
+<listitem>
+<simpara>
+    Inherit file descriptors. This asks <emphasis role="strong">criu</emphasis> to use an already opened
+    file descriptor <emphasis>N</emphasis> for restoring a file indentified by <emphasis>path</emphasis>. Note
+    that the <emphasis>N</emphasis> must be enclosed in a literal square brackets, that
+    usually needs to be escaped from shell.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-d</emphasis>, <emphasis role="strong">--restore-detached</emphasis>
+</term>
+<listitem>
+<simpara>
+    Detach <emphasis role="strong">criu</emphasis> itself once restore is complete.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-S</emphasis>, <emphasis role="strong">--restore-sibling</emphasis>
+</term>
+<listitem>
+<simpara>
+    Restore root task as a sibling (makes sense only with
+    <emphasis role="strong">--restore-detached</emphasis>).
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-r</emphasis>, <emphasis role="strong">--root</emphasis> <emphasis>path</emphasis>
+</term>
+<listitem>
+<simpara>
+    Change the root filesystem to <emphasis>path</emphasis> (when run in a mount namespace).
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--manage-cgroups</emphasis> [<emphasis>mode</emphasis>]
+</term>
+<listitem>
+<simpara>
+    Restore cgroups configuration associated with a task from the image.
+    Controllers are always restored in an optimistic way&#8201;&#8212;&#8201;if already present
+    in system, <emphasis role="strong">criu</emphasis> reuses it, otherwise it will be created.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara>The <emphasis>mode</emphasis> may be one of the following:</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">none</emphasis>
+</term>
+<listitem>
+<simpara>
+Do not restore cgroup properties but require cgroup to
+                pre-exist at the moment of <emphasis role="strong">restore</emphasis> procedure.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">props</emphasis>
+</term>
+<listitem>
+<simpara>
+Restore cgroup properties and require cgroup to pre-exist.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">soft</emphasis>
+</term>
+<listitem>
+<simpara>
+Restore cgroup properties if only cgroup has been created
+                by <emphasis role="strong">criu</emphasis>, otherwise do not restore properties. This is the
+                default if mode is unspecified.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">full</emphasis>
+</term>
+<listitem>
+<simpara>
+Always restore all cgroups and their properties.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">strict</emphasis>
+</term>
+<listitem>
+<simpara>
+Restore all cgroups and their properties from the scratch,
+                requiring them to not present in the system.
+</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">--cgroup-root</emphasis> [<emphasis>controller</emphasis><emphasis role="strong">:</emphasis>]/<emphasis>newroot</emphasis>
+</term>
+<listitem>
+<simpara>
+    Change the root cgroup the controller will be installed into. No controller
+    means that root is the default for all controllers not specified.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--tcp-established</emphasis>
+</term>
+<listitem>
+<simpara>
+    Restore previously dumped established TCP connections. This implies that
+    the network has been locked between <emphasis role="strong">dump</emphasis> and <emphasis role="strong">restore</emphasis> phases so other
+    side of a connection simply notice a kind of lag.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--veth-pair</emphasis> <emphasis>IN</emphasis><emphasis role="strong">=</emphasis><emphasis>OUT</emphasis>
+</term>
+<listitem>
+<simpara>
+    Correspondence between outside and inside names of veth devices.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-l</emphasis>, <emphasis role="strong">--file-locks</emphasis>
+</term>
+<listitem>
+<simpara>
+    Restore file locks from the image.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-M</emphasis>, <emphasis role="strong">--ext-mount-map</emphasis> <emphasis>KEY</emphasis><emphasis role="strong">:</emphasis><emphasis>VAL</emphasis>
+</term>
+<listitem>
+<simpara>
+    Setup mapping for external mounts. <emphasis>KEY</emphasis> is the value from the image
+    (<emphasis>VAL</emphasis> from dump) and the <emphasis>VAL</emphasis> is the path on host that will be
+    bind-mounted into container (to the mountpoint path from image).
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--ext-mount-map</emphasis> <emphasis role="strong">auto</emphasis>
+</term>
+<listitem>
+<simpara>
+    This is a special case. If this flag is passed, when an external
+    mount is missing from the command line <emphasis><emphasis role="strong">--ext-mount-map</emphasis> KEY:VAL</emphasis> syntax,
+    criu attempts to automatically resolve this mount from its namespace.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--enable-external-sharing</emphasis>
+</term>
+<term>
+<emphasis role="strong">--enable-external-masters</emphasis>
+</term>
+<listitem>
+<simpara>
+    These flags enable external shared or slave mounts to be resolved
+    automatically when <emphasis><emphasis role="strong">--ext-mount-map auto</emphasis></emphasis> is passed.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--auto-dedup</emphasis>
+</term>
+<listitem>
+<simpara>
+    As soon as a page is restored it get punched out from image.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">-j</emphasis>, <emphasis role="strong">--shell-job</emphasis>
+</term>
+<listitem>
+<simpara>
+    Restore shell jobs, in other words inherit session and process group
+    ID from the criu itself.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--cpu-cap</emphasis> [<emphasis>cap</emphasis>[,<emphasis>cap</emphasis>&#8230;]]
+</term>
+<listitem>
+<simpara>
+    Specify CPU capabilities to be present on the CPU the process is
+    restoring. To inverse a capability, prefix it with <emphasis role="strong">^</emphasis>. This option implies
+    that <emphasis role="strong">--cpu-cap</emphasis> has been passed on <emphasis role="strong">dump</emphasis> as well, except <emphasis role="strong">fpu</emphasis> option
+    case. The <emphasis>cap</emphasis> argument can be the following (or a set of comma-separated
+    values):
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">all</emphasis>
+</term>
+<listitem>
+<simpara>
+Require all capabilities. This is <emphasis role="strong">default</emphasis> mode if <emphasis role="strong">--cpu-cap</emphasis>
+                is passed without arguments. Most safe mode.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">cpu</emphasis>
+</term>
+<listitem>
+<simpara>
+Require the CPU to have all capabilities in image to match
+                runtime CPU.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">fpu</emphasis>
+</term>
+<listitem>
+<simpara>
+Require the CPU to have compatible FPU. For example the process
+                might be dumped with xsave capability but attempted to restore
+                without it present on target CPU. In such case we refuse to
+                proceed. This is <emphasis role="strong">default</emphasis> mode if <emphasis role="strong">--cpu-cap</emphasis> is not present
+                in command line. Note this argument might be passed even if
+                on the <emphasis role="strong">dump</emphasis> no <emphasis role="strong">--cpu-cap</emphasis> have been specified because FPU
+                frames are always encoded into images.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">ins</emphasis>
+</term>
+<listitem>
+<simpara>
+Require CPU compatibility on instructions level.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">none</emphasis>
+</term>
+<listitem>
+<simpara>
+Ignore capabilities. Most dangerous mode. The behaviour is
+                implementation dependent. Try to not use it until really
+                required.
+</simpara>
+<simpara>For example, this option can be used in case <emphasis role="strong">--cpu-cap=cpu</emphasis> was used
+during <emphasis role="strong">dump</emphasis>, and images are migrated to a less capable CPU and are
+to be restored. By default, <emphasis role="strong">criu</emphasis> shows an error that CPU capabilities
+are not adequate, but this can be suppressed by using <emphasis role="strong">--cpu-cap=none</emphasis>.</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect2>
+<refsect2 id="_emphasis_role_strong_check_emphasis">
+<title><emphasis role="strong">check</emphasis></title>
+<simpara>Checks whether the kernel supports the features needed by <emphasis role="strong">criu</emphasis> to
+dump and restore a process tree.</simpara>
+<simpara>There are three categories of kernel support, as described below. <emphasis role="strong">criu
+check</emphasis> always checks Category 1 features unless <emphasis role="strong">--feature</emphasis> is specified
+which only checks a specified feature.</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">Category 1</emphasis>
+</term>
+<listitem>
+<simpara>
+Absolutely required. These are features like support for
+                <emphasis role="strong">/proc/PID/map_files</emphasis>, <emphasis role="strong">NETLINK_SOCK_DIAG</emphasis> socket
+                monitoring, <emphasis role="strong">/proc/sys/kernel/ns_last_pid</emphasis> etc.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">Category 2</emphasis>
+</term>
+<listitem>
+<simpara>
+Required only for specific cases. These are features
+                like AIO remap, <emphasis role="strong">/dev/net/tun</emphasis> and others that are only
+                required if a process being dumped or restored
+                is using those.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">Category 3</emphasis>
+</term>
+<listitem>
+<simpara>
+Experimental. These are features like <emphasis role="strong">task-diag</emphasis> that
+                are used for experimental purposes (mostly
+                during development).
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara>If there are no errors or warnings, <emphasis role="strong">criu</emphasis> prints "Looks good." and its
+exit code is 0.</simpara>
+<simpara>A missing Category 1 feature causes <emphasis role="strong">criu</emphasis> to print "Does not look good."
+and its exit code is non-zero.</simpara>
+<simpara>Missing Category 2 and 3 features cause <emphasis role="strong">criu</emphasis> to print "Looks good but
+&#8230;" and its exit code is be non-zero.</simpara>
+<simpara>Without any options, <emphasis role="strong">criu check</emphasis> checks Category 1 features. This
+behavior can be changed by using the following options:</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">--extra</emphasis>
+</term>
+<listitem>
+<simpara>
+    Check kernel support for Category 2 features.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--experimental</emphasis>
+</term>
+<listitem>
+<simpara>
+    Check kernel support for Category 3 features.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--all</emphasis>
+</term>
+<listitem>
+<simpara>
+    Check kernel support for Category 1, 2, and 3 features.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--feature</emphasis> <emphasis>name</emphasis>
+</term>
+<listitem>
+<simpara>
+    Check a specific feature.  If <emphasis>name</emphasis> is <emphasis role="strong">list</emphasis>, a list of valid
+    kernel feature names that can be checked will be printed.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect2>
+<refsect2 id="_emphasis_role_strong_page_server_emphasis">
+<title><emphasis role="strong">page-server</emphasis></title>
+<simpara>Launches <emphasis role="strong">criu</emphasis> in page server mode.</simpara>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis role="strong">--daemon</emphasis>
+</term>
+<listitem>
+<simpara>
+    Runs page server as a daemon (background process).
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--address</emphasis> <emphasis>address</emphasis>
+</term>
+<listitem>
+<simpara>
+    Page server IP address.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis role="strong">--port</emphasis> <emphasis>number</emphasis>
+</term>
+<listitem>
+<simpara>
+    Page server port number.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect2>
+<refsect2 id="_emphasis_role_strong_exec_emphasis">
+<title><emphasis role="strong">exec</emphasis></title>
+<simpara>Executes a system call inside a destination task's context. This functionality
+is depreated; please use <emphasis role="strong">Compel</emphasis> instead.</simpara>
+</refsect2>
+<refsect2 id="_emphasis_role_strong_service_emphasis">
+<title><emphasis role="strong">service</emphasis></title>
+<simpara>Launches <emphasis role="strong">criu</emphasis> in RPC daemon mode, where <emphasis role="strong">criu</emphasis> is listening for
+RPC commands over socket to perform. This is convenient for a
+case where daemon itself is running in a privileged (superuser) mode
+but clients are not.</simpara>
+</refsect2>
+<refsect2 id="_dedup">
+<title>dedup</title>
+<simpara>Starts pagemap data deduplication procedure, where <emphasis role="strong">criu</emphasis> scans over all
+pagemap files and tries to minimize the number of pagemap entries by
+obtaining the references from a parent pagemap image.</simpara>
+</refsect2>
+<refsect2 id="_cpuinfo_dump">
+<title>cpuinfo dump</title>
+<simpara>Fetches current CPU features and write them into an image file.</simpara>
+</refsect2>
+<refsect2 id="_cpuinfo_check">
+<title>cpuinfo check</title>
+<simpara>Fetches current CPU features (i.e. CPU the <emphasis role="strong">criu</emphasis> is running on) and test if
+they are compatible with the ones present in an image file.</simpara>
+</refsect2>
+</refsect1>
+<refsect1 id="_examples">
+<title>EXAMPLES</title>
+<simpara>To checkpoint a program with pid of <emphasis role="strong">1234</emphasis> and write all image files into
+directory <emphasis role="strong">checkpoint</emphasis>:</simpara>
+<screen>    criu dump -D checkpoint -t 1234</screen>
+<simpara>To restore this program detaching criu itself:</simpara>
+<screen>    criu restore -d -D checkpoint</screen>
+</refsect1>
+<refsect1 id="_author">
+<title>AUTHOR</title>
+<simpara>The CRIU team.</simpara>
+</refsect1>
+<refsect1 id="_copyright">
+<title>COPYRIGHT</title>
+<simpara>Copyright (C) 2011-2016, Parallels Holdings, Inc.</simpara>
+</refsect1>
+</refentry>
